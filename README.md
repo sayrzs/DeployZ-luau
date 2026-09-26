@@ -18,7 +18,8 @@ Put your HTML/CSS/JS in `webroot/` and open http://localhost:8080.
 
 | Key | What it does |
 |---|---|
-| `port` | Port to listen on (default `8080`, or `PORT` env var) |
+| `port` | Port to listen on (default `8080`; `SERVER_PORT` or `PORT` env var overrides) |
+| `host` | Address to listen on (default `0.0.0.0`) |
 | `webroot` | Default folder to serve |
 | `liveReload` | Browser auto-refreshes when files change |
 | `domains` | `"host": "sites/folder"` serves a whole site per domain (multi-site hosting), or `"host": "page.html"` serves one page |
@@ -40,6 +41,19 @@ yourdomain.com, *.yourdomain.com {
 }
 ```
 
+## Pterodactyl
+
+An egg is included at [`pterodactyl/egg-deployz.json`](pterodactyl/egg-deployz.json).
+
+1. **Import:** Admin panel → Nests → create a nest (e.g. "DeployZ") → **Import Egg** → upload `egg-deployz.json`.
+2. **Create a server** with the DeployZ-luau egg. 64 MB RAM and 200 MB disk are plenty for small sites.
+3. **Start it.** The installer downloads Lune and DeployZ; the server uses the port you assigned.
+4. **Upload your site** with the File Manager or SFTP into `webroot/`, or into `sites/<name>/` and map a domain in `config.json`.
+
+Egg variables: `LUNE_VERSION`, `GIT_REPO`, `GIT_BRANCH`. To update DeployZ, use **Reinstall**: it replaces the server code (`deployz.luau`, `src/`) but keeps your `config.json`, `webroot/` and `sites/`.
+
+Tip: set `"liveReload": false` on hosted servers to save CPU.
+
 ## Layout
 
 ```
@@ -48,6 +62,7 @@ src/router.luau   domains, redirects, blocking
 src/static.luau   file resolving, MIME types, path safety
 src/reload.luau   live reload
 src/log.luau      logging
+pterodactyl/      egg + install script
 webroot/          default site
 sites/            per-domain sites
 ```

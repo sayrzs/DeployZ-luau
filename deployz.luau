@@ -13,7 +13,8 @@ if not fs.isFile(configPath) then
 	error(`config not found: {configPath}`)
 end
 local config = serde.decode("json", fs.readFile(configPath))
-config.port = tonumber(process.env.PORT) or config.port or 8080
+config.port = tonumber(process.env.SERVER_PORT) or tonumber(process.env.PORT) or config.port or 8080
+config.host = config.host or "0.0.0.0"
 config.webroot = config.webroot or "webroot"
 
 local log = Log.new(config)
@@ -28,6 +29,6 @@ if config.liveReload then
 	Reload.start(dirs)
 end
 
-net.serve(config.port, Router.new(config, log))
+net.serve(config.port, { address = config.host, handleRequest = Router.new(config, log) })
 log:debug("info", "server started", { port = config.port })
-print(`DeployZ running on http://localhost:{config.port}`)
+print(`DeployZ running on http://{config.host}:{config.port}`)

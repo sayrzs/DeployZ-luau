@@ -1,0 +1,62 @@
+{
+    "_comment": "DO NOT EDIT: FILE GENERATED AUTOMATICALLY BY PTERODACTYL PANEL - PTERODACTYL.IO",
+    "meta": {
+        "version": "PTDL_v2",
+        "update_url": null
+    },
+    "exported_at": "2026-09-26T00:00:00+00:00",
+    "name": "DeployZ-luau",
+    "author": "sayrzs@users.noreply.github.com",
+    "description": "Lightweight static site host (HTML/CSS/JS) written in Luau, running on Lune. Upload your site to webroot/ or sites/<name>/.",
+    "features": null,
+    "docker_images": {
+        "Debian": "ghcr.io/ptero-eggs/yolks:debian"
+    },
+    "file_denylist": [],
+    "startup": "./lune run deployz",
+    "config": {
+        "files": "{\n    \"config.json\": {\n        \"parser\": \"json\",\n        \"find\": {\n            \"port\": \"{{server.build.default.port}}\",\n            \"host\": \"0.0.0.0\"\n        }\n    }\n}",
+        "startup": "{\n    \"done\": \"DeployZ running on\"\n}",
+        "logs": "{}",
+        "stop": "^C"
+    },
+    "scripts": {
+        "installation": {
+            "script": "#!/bin/bash\n# DeployZ-luau installer. Runs in the Pterodactyl install container.\nset -e\napt-get update -qq && apt-get install -y -qq curl unzip git ca-certificates > /dev/null\n\nmkdir -p /mnt/server && cd /mnt/server\n\n# Lune runtime\nARCH=$(uname -m); [ \"$ARCH\" = \"aarch64\" ] || ARCH=\"x86_64\"\nLUNE_VERSION=${LUNE_VERSION:-0.10.4}\ncurl -sSL -o /tmp/lune.zip \"https://github.com/lune-org/lune/releases/download/v${LUNE_VERSION}/lune-${LUNE_VERSION}-linux-${ARCH}.zip\"\nunzip -o -q /tmp/lune.zip -d /tmp/lune && mv -f /tmp/lune/lune ./lune && chmod +x ./lune\n\n# DeployZ code: server code is always updated, user files are only created if missing\nrm -rf /tmp/deployz\ngit clone -q --depth 1 -b \"${GIT_BRANCH:-main}\" \"${GIT_REPO:-https://github.com/sayrzs/DeployZ-luau}\" /tmp/deployz\nrm -rf ./src && cp -r /tmp/deployz/src /tmp/deployz/deployz.luau /tmp/deployz/README.md ./\n[ -f config.json ] || cp /tmp/deployz/config.json ./\n[ -d webroot ] || cp -r /tmp/deployz/webroot ./\n[ -d sites ] || cp -r /tmp/deployz/sites ./\n\necho \"DeployZ-luau installed (Lune ${LUNE_VERSION}, ${ARCH})\"\n",
+            "container": "ghcr.io/ptero-eggs/installers:debian",
+            "entrypoint": "bash"
+        }
+    },
+    "variables": [
+        {
+            "name": "Lune Version",
+            "description": "Lune runtime version to download (github.com/lune-org/lune/releases).",
+            "env_variable": "LUNE_VERSION",
+            "default_value": "0.10.4",
+            "user_viewable": true,
+            "user_editable": true,
+            "rules": "required|string|max:20",
+            "field_type": "text"
+        },
+        {
+            "name": "Git Repository",
+            "description": "Repository to install DeployZ from.",
+            "env_variable": "GIT_REPO",
+            "default_value": "https://github.com/sayrzs/DeployZ-luau",
+            "user_viewable": true,
+            "user_editable": true,
+            "rules": "required|url",
+            "field_type": "text"
+        },
+        {
+            "name": "Git Branch",
+            "description": "Branch to install. Reinstall the server to update.",
+            "env_variable": "GIT_BRANCH",
+            "default_value": "main",
+            "user_viewable": true,
+            "user_editable": true,
+            "rules": "required|string|max:100",
+            "field_type": "text"
+        }
+    ]
+}

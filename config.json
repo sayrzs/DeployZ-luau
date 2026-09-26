@@ -1,5 +1,6 @@
 {
   "port": 8080,
+  "host": "0.0.0.0",
   "webroot": "webroot",
   "liveReload": true,
   "domains": {
