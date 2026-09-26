@@ -1,0 +1,17 @@
+{
+  "port": 8080,
+  "webroot": "webroot",
+  "liveReload": true,
+  "domains": {
+    "example.localhost": "sites/example"
+  },
+  "redirects": {
+    "old.localhost": "https://example.com"
+  },
+  "blockFeature": true,
+  "blockedFiles": ["*.env", "secret/*", "*.log"],
+  "logsEnabled": true,
+  "requestLogsEnabled": true,
+  "debugLogsEnabled": false,
+  "debugLogLevel": "info"
+}
